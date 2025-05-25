@@ -1,5 +1,19 @@
 <script lang="ts">
   import * as Plot from "@observablehq/plot";
+  import { onMount } from "svelte";
+
+  let isDark = $state(false);
+
+  onMount(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    isDark = media.matches;
+
+    // react to changes in system setting
+    media.addEventListener("change", (e) => {
+      isDark = e.matches;
+    });
+  });
+
   let current = $state(0);
 
   const parties = [
@@ -141,7 +155,7 @@
         Plot.dot([userPoint], {
           x: "leftRight",
           y: "authLib",
-          fill: "black",
+          fill: isDark ? "white" : "black",
           stroke: "black",
           title: "You",
           r: 6,
@@ -153,8 +167,14 @@
           dy: -12,
           fontSize: 12,
         }),
-        Plot.ruleX([5], { stroke: "black", strokeOpacity: 0.5 }),
-        Plot.ruleY([5], { stroke: "black", strokeOpacity: 0.5 }),
+        Plot.ruleX([5], {
+          stroke: isDark ? "white" : "black",
+          strokeOpacity: 0.5,
+        }),
+        Plot.ruleY([5], {
+          stroke: isDark ? "white" : "black",
+          strokeOpacity: 0.5,
+        }),
       ],
     });
 
