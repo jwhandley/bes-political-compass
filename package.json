@@ -1,5 +1,5 @@
 {
-  "name": "hello-svelte",
+  "name": "bes-political-compass",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
+    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json", 
+    "deploy": "vite build && cd dist && git init && git checkout -b gh-pages && git add . && git commit -m 'deploy' && git push -f git@github.com:jwhandley/bes-political-compass.git gh-pages && cd .."
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
