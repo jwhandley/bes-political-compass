@@ -17,6 +17,88 @@
 
   let current = $state(0);
 
+  let selected = $state("parties");
+  const options = ["parties", "qualifications", "age"];
+
+  let context = $derived.by(() => {
+    switch (selected) {
+      case "parties":
+        return parties;
+      case "qualifications":
+        return qualifications;
+      case "age":
+        return age;
+      default:
+        return [];
+    }
+  });
+
+  const age = [
+    {
+      label: "18-24",
+      leftRight: 2.5261142220012913,
+      authLib: 4.842430590968729,
+      size: 10.533509317553325,
+    },
+    {
+      label: "25-49",
+      leftRight: 2.6358959683886627,
+      authLib: 5.9319533962227045,
+      size: 42.571959611845315,
+    },
+    {
+      label: "50-64",
+      leftRight: 2.944215693004888,
+      authLib: 6.7035508587942845,
+      size: 24.414217120437478,
+    },
+    {
+      label: "65+",
+      leftRight: 3.5271540476409524,
+      authLib: 7.0363964711092235,
+      size: 22.48031395016389,
+    },
+  ];
+
+  const qualifications = [
+    {
+      label: "No qualifications",
+      leftRight: 2.7719985767964204,
+      authLib: 7.3524550109434665,
+      size: 6.1638521143678595,
+    },
+    {
+      label: "Below GCSE",
+      leftRight: 2.9501098127988983,
+      authLib: 7.503285117149322,
+      size: 4.046557454205965,
+    },
+    {
+      label: "GCSE",
+      leftRight: 2.881179777145288,
+      authLib: 7.109789544405479,
+      size: 20.700113002185784,
+    },
+    {
+      label: "A-level",
+      leftRight: 2.8842694876895014,
+      authLib: 6.221112167561891,
+      size: 21.12521304321468,
+    },
+    {
+      label: "Undergraduate",
+      leftRight: 2.8683349607918354,
+      authLib: 5.729038351578414,
+      size: 35.45277378634899,
+    },
+    {
+      label: "Postgrad",
+      leftRight: 2.790564628552675,
+      authLib: 5.012408125193036,
+      size: 12.511490599676712,
+    },
+  ];
+
   const parties = [
     {
       label: "Conservative",
@@ -62,11 +144,11 @@
     },
   ];
 
-  function closestParty() {
-    return parties
+  function closestGroup() {
+    return context
       .map((p) => {
         return {
-          party: p.label,
+          label: p.label,
           dist:
             Math.pow(p.leftRight - score[0], 2) +
             Math.pow(p.authLib - score[1], 2),
@@ -118,6 +200,12 @@
   });
 
   let plotOptions = $derived({
+    color: {
+      legend: true,
+      type: "categorical",
+      domain: context.map((d) => d.label),
+      range: selected === "parties" ? parties.map((d) => d.color) : undefined,
+    },
     marginLeft: 40,
     marginBottom: 40,
     width: 500,
@@ -137,12 +225,12 @@
       range: [4, 20], // adjust min/max dot size
     },
     marks: [
-      Plot.dot(parties, {
+      Plot.dot(context, {
         x: "leftRight",
         y: "authLib",
-        stroke: "color",
-        fill: "color",
-        title: (d) => d.label,
+        stroke: "label",
+        fill: "label",
+        title: "label",
         r: "size",
       }),
       Plot.dot([userPoint], {
@@ -154,7 +242,7 @@
         r: 6,
       }),
       Plot.tip(
-        [...parties],
+        context,
         Plot.pointer({
           x: "leftRight",
           y: "authLib",
@@ -209,7 +297,20 @@
       2,
     )}
   </p>
-  <p>Your closest party: {closestParty().party}</p>
+  <p>
+    Your closest {selected === "parties" ? "party" : "group"}: {closestGroup()
+      .label}
+  </p>
+  <p>
+    Context: <select bind:value={selected}>
+      {#each options as option}
+        <option value={option}>
+          {option}
+        </option>
+      {/each}
+    </select>
+  </p>
+
   <PlotComponent options={plotOptions} />
   <button
     aria-label="Reset"
