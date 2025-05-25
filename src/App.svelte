@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as Plot from "@observablehq/plot";
+  import PlotComponent from "./lib/Plot.svelte";
   import { onMount } from "svelte";
 
   let isDark = $state(false);
@@ -109,76 +110,67 @@
     return [10 - lr / 2, al / 2];
   });
 
-  let plotDiv = $state<HTMLDivElement | null>(null);
-  $effect(() => {
-    if (current < questions.length || !plotDiv) return;
+  let userPoint = $derived({
+    party: "You",
+    leftRight: score[0],
+    authLib: score[1],
+    isUser: true,
+  });
 
-    // Clean the container
-    plotDiv.replaceChildren();
-
-    const userPoint = {
-      party: "You",
-      leftRight: score[0],
-      authLib: score[1],
-      isUser: true,
-    };
-
-    const plot = Plot.plot({
-      marginLeft: 40,
-      marginBottom: 40,
-      width: 500,
-      height: 500,
-      x: {
-        label: "Left (0) → Right (10)",
-        domain: [0, 10],
-        ticks: 11,
-      },
-      y: {
-        label: "Liberal (0) → Authoritarian (10)",
-        domain: [0, 10],
-        ticks: 11,
-      },
-      r: {
-        domain: [0, Math.max(...parties.map((d) => d.vote))],
-        range: [4, 20], // adjust min/max dot size
-      },
-      marks: [
-        Plot.dot(parties, {
-          x: "leftRight",
-          y: "authLib",
-          stroke: "color",
-          fill: "color",
-          title: (d) => d.party,
-          r: "vote",
-          tip: true,
-        }),
-        Plot.dot([userPoint], {
-          x: "leftRight",
-          y: "authLib",
-          fill: isDark ? "white" : "black",
-          stroke: "black",
-          title: "You",
-          r: 6,
-        }),
-        Plot.text([userPoint], {
-          x: "leftRight",
-          y: "authLib",
-          text: "party",
-          dy: -12,
-          fontSize: 12,
-        }),
-        Plot.ruleX([5], {
-          stroke: isDark ? "white" : "black",
-          strokeOpacity: 0.5,
-        }),
-        Plot.ruleY([5], {
-          stroke: isDark ? "white" : "black",
-          strokeOpacity: 0.5,
-        }),
-      ],
-    });
-
-    plotDiv.append(plot);
+  let plotOptions = $derived({
+    marginLeft: 40,
+    marginBottom: 40,
+    width: 500,
+    height: 500,
+    x: {
+      label: "Left (0) → Right (10)",
+      domain: [0, 10],
+      ticks: 11,
+    },
+    y: {
+      label: "Liberal (0) → Authoritarian (10)",
+      domain: [0, 10],
+      ticks: 11,
+    },
+    r: {
+      domain: [0, Math.max(...parties.map((d) => d.vote))],
+      range: [4, 20], // adjust min/max dot size
+    },
+    marks: [
+      Plot.dot(parties, {
+        x: "leftRight",
+        y: "authLib",
+        stroke: "color",
+        fill: "color",
+        title: (d) => d.party,
+        r: "vote",
+        tip: true,
+      }),
+      Plot.dot([userPoint], {
+        x: "leftRight",
+        y: "authLib",
+        fill: isDark ? "white" : "black",
+        stroke: "black",
+        title: "You",
+        tip: true,
+        r: 6,
+      }),
+      Plot.text([userPoint], {
+        x: "leftRight",
+        y: "authLib",
+        text: "party",
+        dy: -12,
+        fontSize: 12,
+      }),
+      Plot.ruleX([5], {
+        stroke: isDark ? "white" : "black",
+        strokeOpacity: 0.5,
+      }),
+      Plot.ruleY([5], {
+        stroke: isDark ? "white" : "black",
+        strokeOpacity: 0.5,
+      }),
+    ],
   });
 </script>
 
@@ -210,7 +202,7 @@
     )}
   </p>
   <p>Your closest party: {closestParty().party}</p>
-  <div bind:this={plotDiv}></div>
+  <PlotComponent options={plotOptions} />
   <button
     aria-label="Reset"
     onclick={() => {
