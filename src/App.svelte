@@ -19,45 +19,45 @@
 
   const parties = [
     {
-      party: "Conservative",
+      label: "Conservative",
       leftRight: 4.44,
       authLib: 7.34,
-      vote: 23.7,
+      size: 23.7,
       color: "#0087dc",
     },
     {
-      party: "Labour",
+      label: "Labour",
       leftRight: 2.3,
       authLib: 5.4,
-      vote: 33.7,
+      size: 33.7,
       color: "#e4003b",
     },
     {
-      party: "Lib Dem",
+      label: "Lib Dem",
       leftRight: 2.78,
       authLib: 5.34,
-      vote: 12.1,
+      size: 12.1,
       color: "#faa619",
     },
     {
-      party: "SNP",
+      label: "SNP",
       leftRight: 1.8,
       authLib: 4.95,
-      vote: 2.5,
+      size: 2.5,
       color: "#fdf38e",
     },
     {
-      party: "Green",
+      label: "Green",
       leftRight: 1.79,
       authLib: 4.38,
-      vote: 6.4,
+      size: 6.4,
       color: "#06a95b",
     },
     {
-      party: "Reform",
+      label: "Reform",
       leftRight: 3.22,
       authLib: 7.63,
-      vote: 14.3,
+      size: 14.3,
       color: "#12b6cf",
     },
   ];
@@ -66,7 +66,7 @@
     return parties
       .map((p) => {
         return {
-          party: p.party,
+          party: p.label,
           dist:
             Math.pow(p.leftRight - score[0], 2) +
             Math.pow(p.authLib - score[1], 2),
@@ -111,7 +111,7 @@
   });
 
   let userPoint = $derived({
-    party: "You",
+    label: "You",
     leftRight: score[0],
     authLib: score[1],
     isUser: true,
@@ -133,7 +133,7 @@
       ticks: 11,
     },
     r: {
-      domain: [0, Math.max(...parties.map((d) => d.vote))],
+      domain: [0, Math.max(...parties.map((d) => d.size))],
       range: [4, 20], // adjust min/max dot size
     },
     marks: [
@@ -142,9 +142,8 @@
         y: "authLib",
         stroke: "color",
         fill: "color",
-        title: (d) => d.party,
-        r: "vote",
-        tip: true,
+        title: (d) => d.label,
+        r: "size",
       }),
       Plot.dot([userPoint], {
         x: "leftRight",
@@ -152,13 +151,22 @@
         fill: isDark ? "white" : "black",
         stroke: "black",
         title: "You",
-        tip: true,
         r: 6,
       }),
+      Plot.tip(
+        [...parties],
+        Plot.pointer({
+          x: "leftRight",
+          y: "authLib",
+          title: "label",
+          fill: isDark ? "black" : "white",
+          fontSize: 12,
+        }),
+      ),
       Plot.text([userPoint], {
         x: "leftRight",
         y: "authLib",
-        text: "party",
+        text: "label",
         dy: -12,
         fontSize: 12,
       }),
